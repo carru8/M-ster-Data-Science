@@ -1,0 +1,479 @@
+---
+title: "Tarea Estadística"
+author: "Naira Carruccio Villada"
+format: pdf
+editor: visual
+fontsize: 11pt
+output:
+  pdf_document:
+    latex_engine: xelatex
+
+---
+
+## Ejercicio 1
+
+### a)
+
+Obtenemos las medidas de centralización y de dispersión.
+
+```{r}
+#| echo: false
+#| include: false
+library(readxl)
+library(dplyr)
+HIPERTENSION <- read_excel("~/Máster Data Science/Estadística/HIPERTENSION.xlsx")
+
+library(sjPlot)
+library(tidyr)
+library(modeest)
+library(moments)
+library(ggplot2)
+Grupo1 <- HIPERTENSION %>% 
+  filter(Grupo == "1") 
+
+Grupo2 <- HIPERTENSION %>%
+  filter(Grupo == "2") 
+
+
+# añadimos la media 
+
+media_Grupo1 <- mean(Grupo1$`Presion sistólica antes`)
+media_Grupo2 <- mean(Grupo2$`Presion sistólica antes`)
+
+# calculamos la mediana 
+
+mediana_Grupo1 <- median(Grupo1$`Presion sistólica antes`)
+mediana_Grupo2 <- median(Grupo2$`Presion sistólica antes`)
+
+# calculamos la moda
+# Calcular la moda con modeest
+moda1 <- mfv(Grupo1$`Presion sistólica antes`)
+moda1 <- moda1[4]
+
+
+moda2 <- mfv(Grupo2$`Presion sistólica antes`)
+
+summary(Grupo1$`Presion sistólica antes`)
+summary(Grupo2$`Presion sistólica antes`)
+
+min_Grupo1 <- min(Grupo1$`Presion sistólica antes`)
+min_Grupo2 <- min(Grupo2$`Presion sistólica antes`)
+max_Grupo1 <- max(Grupo1$`Presion sistólica antes`)
+max_Grupo2 <- max(Grupo2$`Presion sistólica antes`)
+rango_grupo1 = 129-117.5
+rango_grupo2 = 138.2-118.8
+sd_grupo1 <- sd(Grupo1$`Presion sistólica antes`)
+sd_grupo2 <- sd(Grupo2$`Presion sistólica antes`)
+var_grupo1 <- sd(Grupo1$`Presion sistólica antes`)
+var_grupo2 <- sd(Grupo2$`Presion sistólica antes`)
+cv_grupo1 <- (sd_grupo1/media_Grupo1)
+cv_grupo2 <- (sd_grupo2/media_Grupo2)
+
+```
+
+```{r}
+#| echo: false
+
+
+knitr::kable(
+  data.frame(
+    Grupo = c("1", "2"),
+    Media = c(media_Grupo1, media_Grupo2),
+    Mediana = c(mediana_Grupo1, mediana_Grupo2),
+    Moda = c(moda1, moda2)
+  ),
+  format = "markdown",
+  caption = "Medidas de centralización"
+)
+
+
+
+
+knitr::kable(
+  data.frame(
+    "Grupo" = c("1", "2"),
+    "Mínimo" = c(min_Grupo1, min_Grupo2),
+    "Máximo" = c(max_Grupo1, max_Grupo2),
+    "Rango interc" = c(rango_grupo1, rango_grupo2),
+    "Desviación típica" = c(sd_grupo1, sd_grupo2),
+    "Varianza" = c(var_grupo1,var_grupo2),
+    "CV" = c(cv_grupo1, cv_grupo2)
+  ),
+  caption = "Medidas de dispersión"
+)
+
+```
+
+La representatividad de la media en el conjunto de datos viene dado por el Coeficiente de Variación (CV), ya que muestra el número de veces que la desviación típica contiene a la media. Cuánto mayor es el coeficiente de variación, más valores dispersos habrá y por tanto, su media es menos representativa.
+
+Como podemos observar en la Tabla 2, el Grupo 1 tiene un menor valor del Coeficiente de Variación con un 7.31% respecto al del Grupo 2 que tiene un 10,89%, igual en ambos la media es representativa, al ser menores del 30%. Sin embargo, la media más representativa entre los grupos es la perteneciente al Grupo 1, ya que contiene menor dispersión.
+
+### b)
+
+```{r}
+#| echo: false
+simetria_2a <- round(skewness(Grupo2$`Presion sistólica antes`),4)
+simetria_2b<-round(skewness(Grupo2$`Presión sistólica después`),4)
+curtosis_2a <- round(kurtosis(Grupo2$`Presion sistólica antes`),4)
+curtosis_2a <- curtosis_2a - 3
+curtosis_2b <- round(kurtosis(Grupo2$`Presión sistólica después`),4)
+curtosis_2b <- curtosis_2b - 3
+
+```
+
+```{r}
+#| echo: false
+knitr::kable(
+  data.frame(
+    "Periodo" = c("Antes", "Después"),
+    "Simetría" = c(simetria_2a, simetria_2b),
+    "Curtosis" = c(curtosis_2a, curtosis_2b)
+  ),
+  format = "markdown",
+  caption = "Estudio de la simetría y la curtosis en el Grupo 2"
+)
+```
+
+Existe una asimetría negativa en los dos periodos ya que su coeficiente es menor que cero. Además, podemos comentar que esta ligera asimetría puede ser debida por la presencia de valores atípicos por la izquierda que desplazan la media hacia ese lado, siendo la media menor que la mediana.
+
+En cuánto a la curtosis, en el primer periodo sigue una distribución Platicúrtica siendo más aplanada que la normal ya que su coeficiente es menor que cero. En el periodo siguiente, la distribución es Leptocúrtica siendo más apuntada de lo normal porque el coeficiente es mayor que 0.
+
+### c)
+
+```{r}
+#| echo: false
+min_a <- min(HIPERTENSION$`Presion sistólica antes`)
+min_b <- min(HIPERTENSION$`Presión sistólica después`)
+primer1 <- quantile(HIPERTENSION$`Presion sistólica antes`, 0.25)
+primer2 <- quantile(HIPERTENSION$`Presión sistólica después`, 0.25)
+median1 <- median(HIPERTENSION$`Presion sistólica antes`)
+median2 <- median(HIPERTENSION$`Presión sistólica después`)
+mean1 <- mean(HIPERTENSION$`Presion sistólica antes`)
+mean2 <- mean(HIPERTENSION$`Presión sistólica después`)
+tercer1 <- quantile(HIPERTENSION$`Presion sistólica antes`, 0.75)
+tercer2 <- quantile(HIPERTENSION$`Presión sistólica después`, 0.75)
+max1 <- max(HIPERTENSION$`Presion sistólica antes`)
+max2 <- max(HIPERTENSION$`Presión sistólica después`)
+rango1 <- tercer1-primer1
+rango2 <- tercer2 - primer2
+
+knitr::kable(
+  data.frame(
+    "Periodo" = c("Antes", "Después"),
+    "Primer cuartil" = c(primer1, primer2),
+    "Mediana" = c(median1, median2),
+    "Tercer cuartil" = c(tercer1,tercer2),
+    "Rango intercuartil" = c(rango1, rango2)
+  ),
+  format = "markdown",
+  caption = " Cuartiles de ambos periodos"
+)
+```
+
+Los cuartiles son los valores que dividen a la distribución en cuatro partes iguales. El primer cuartil representa que el 25% de los datos de los pacientes son menores o iguales a tener una presión sistólica de 118 antes de tomar el medicamento. Y después de 60 minutos de tomar el medicamento, de 115. En el segundo cuartil o mediana, antes de tomar el medicamento el 50% de los datos son menores o iguales a una presión sistólica de 125. Y después de tomar el medicamento, es de 120. En el tercer cuartil, observamos que antes de tomar el medicamento el 75% de los datos son menores o iguales a una presión sistólica de 135. Mientrás que después de tomar el medicamento, son menores o iguales a 131.25.
+
+El rango intercuartil es la diferencia entre el tercer cuartil y el primero. El 50% de los datos se encuentran entre 118 y 135 antes de tomar el medicamento. Y después de tomar el medicamento, entre 115 y 131.25.
+
+#### Boxplots
+
+```{r}
+#| echo: false
+
+
+library(patchwork)
+
+graph1 <- ggplot(HIPERTENSION, aes(x = 0, y = `Presion sistólica antes`)) + 
+  stat_boxplot(geom = "errorbar",
+               width = 0.15,
+               color = 1) +  
+  geom_boxplot(fill = 2,           
+               alpha = 0.5,        
+               color = 1,          
+               outlier.colour = 2)+ ggtitle("Presión sistólica antes") + ylab("")
+
+graph2 <- ggplot(HIPERTENSION, aes(x = 0, y = `Presión sistólica después`)) + 
+  stat_boxplot(geom = "errorbar",
+               width = 0.15,
+               color = 2) +  
+  geom_boxplot(fill = 1,           
+               alpha = 0.5,        
+               color = 1,          
+               outlier.colour = 1) + ggtitle("Presión sistólica después") + ylab("")
+
+
+combined_plot <- graph1 + graph2 + plot_layout(ncol = 2)
+
+combined_plot
+
+ 
+ 
+
+
+
+
+```
+
+Al observar los diagramas de cajas, podemos determinar que en la variable presión sistólica anterior no hay valores atípicos, es decir, no hay ningún valor que se quede fuera del límite inferior (92.5) y del límite superior (160.5). Sin embargo, en la variable presión sistólica después hay valores atípicos que se quedan fuera del límite inferior (90.625) y del límite superior (155.625).Siendo exactos, los valores atípicos en el límite inferior pueden ser 90, 82, 76. Y en el límite superior pueden ser 158 y 160.8.
+
+### d)
+
+#### Análisis de normalidad mediante gráficos:
+
+En primer lugar, observaremos el histograma de ambas variables, presión sistólica antes y después.
+
+##### Histogramas de la presión sistólica antes y después
+
+```{r}
+#| echo: false
+
+library(patchwork)
+
+plot1 <- ggplot(HIPERTENSION, aes(x = `Presion sistólica antes`)) +
+  geom_histogram(binwidth = 5, fill = "skyblue", color = "black", alpha = 0.7) +
+  labs(x = "Presión sistólica antes",
+       y = "Frecuencia") + geom_vline(xintercept = mean(HIPERTENSION$`Presión sistólica después`), linetype = "dashed", color = "red")
+
+# Histogram for "Presión sistólica después"
+plot2 <- ggplot(HIPERTENSION, aes(x = `Presión sistólica después`)) +
+  geom_histogram(binwidth = 10, fill = "lightcoral", color = "black", alpha = 0.7) +
+  labs(x = "Presión sistólica después",
+       y = "Frecuencia")  + geom_vline(xintercept = mean(HIPERTENSION$`Presión sistólica después`), linetype = "dashed", color = "red") 
+
+
+combined_plot <- plot1 + plot2 + plot_layout(ncol = 2) 
+
+combined_plot
+
+```
+
+A primera vista, podemos deducir que el histograma de presión sistólica antes no es simétrico. Es decir, los datos no son simétricos alrededor de la media, la línea roja del histograma, y no tiene ningún patrón discernible por su forma aleatoria. Sin embargo, en el histograma de la presión sistólica después, los datos son más simétricos alrededor de la media, tiene una forma de campana. Además, solo coincide en la presión sistólica despúes que el centro del histograma coincida con la media. En cuánto a la dispersión, observamos que la presión sistólica antes tiene más datos alejados de la media que cerca de ella. Y en la presión sistólica después sucede de la manera contraria.
+
+Una distribución normal tiende a ser simétrica en torno a la media, tiene el pico de datos en el centro del histograma y tiene más datos cerca de la media y menos a medida que te alejas. Por tanto, al comparar los histogramas, podemos deducir que es menos probable que la presión sistólica antes tenga una distribución normal. Y es más probable que la presión sistólica despuíes tenga una distribución normal.
+
+#### QQ plot presión sistólica antes y después
+
+```{r}
+#| echo: false
+par(mfrow = c(1, 2))
+
+# QQ plot for "Presion sistólica antes"
+qqnorm(HIPERTENSION$`Presion sistólica antes`, pch = 1, frame = FALSE)
+qqline(HIPERTENSION$`Presion sistólica antes`, col = "steelblue", lwd = 2)
+
+
+# QQ plot for "Presión sistólica después"
+qqnorm(HIPERTENSION$`Presión sistólica después`, pch = 1, frame = FALSE)
+qqline(HIPERTENSION$`Presión sistólica después`, col = "lightcoral", lwd = 2)
+
+
+par(mfrow = c(1, 1))  # Reset the layout to a single plot
+
+```
+
+```{r}
+#| echo: false
+#| include: false
+
+
+shapiro_test_result <- shapiro.test(HIPERTENSION$`Presion sistólica antes`)
+shapiro_test_result2 <- shapiro.test(HIPERTENSION$`Presión sistólica después`)
+
+Presion1 <- HIPERTENSION %>% arrange(`Presion sistólica antes`)
+Presion2 <- HIPERTENSION %>% arrange(`Presión sistólica después`)
+
+ks_test_result <- ks.test(Presion1$`Presion sistólica antes`, "pnorm", mean(Presion1$`Presion sistólica antes`), sd(Presion1$`Presion sistólica antes`))
+
+ks_test_result2 <- ks.test(Presion2$`Presión sistólica después`, "pnorm", mean(Presion2$`Presión sistólica después`), sd(Presion2$`Presión sistólica después`) )
+
+
+```
+
+El gráfico cuantil-cuantil, nos ayuda a poder comparar los cuantiles observados con los esperados de una distribución normal. Al alinearse los puntos aproximadamente en la línea recta, sugiere que hay una distribución normal. Por tanto, podemos sugerir que ambas variables siguen una distribución normal siendo la presión sistólica antes más notoria.
+
+#### Contraste de hipótesis
+
+Para concluir, el análisis de normalidad utilizamos el contraste de hipótesis.
+
+```{r}
+#| echo: false
+knitr::kable(
+  data.frame(
+    "Test" = c("Shapiro-Wilk", "Kolmogorov-Smirnov"),
+    "Statistic" = c(shapiro_test_result$statistic, ks_test_result$statistic),
+    "Pvalue" = c(shapiro_test_result$p.value, ks_test_result$p.value)
+  ),
+  format = "markdown",
+  caption = "Tests de Normalidad : Presión sistólica antes"
+)
+
+knitr::kable(
+  data.frame(
+    "Test" = c("Shapiro-Wilk", "Kolmogorov-Smirnov"),
+    "Statistic" = c(shapiro_test_result2$statistic, ks_test_result2$statistic),
+    "Pvalue" = c(shapiro_test_result2$p.value, ks_test_result2$p.value)
+  ),
+  format = "markdown",
+  caption = "Tests de Normalidad : Presión sistólica después"
+)
+
+```
+
+El test de Shapiro-Wilk y Kolmogorov-Smirnov mantienen algunas diferencias que pueden inferir en el resultado. El test de Shapiro-Wilk es más sensible para detectar desviaciones de la normalidad y es especializado para muestras pequeñas. Sin embargo, el test de Kolmogorov-Smirnov se ve menos afectado por el tamaño de la muestra y se limita el resultado a trabajar con valores idénticos.
+
+Podemos determinar que ambas variables no rechazarían la hipótesis de tener una distribución normal, ya que sus P-valores superan el nivel de significación (0.05) en los dos tests estudiados. Es notoria la diferencia del P-valor en las variables, en la presión sistólica antes se acepta con 0.815/0.934 y en la presión sistólica después con 0.108/0.423.
+
+En el caso, si dieran respuestas diferentes a la hipótesis, nos decantaríamos por el test de Shapiro-Wilk aunque sea para muestras pequeñas y la muestra de nuestro análisis sea 100, existen valores idénticos en nuestros datos que limitan el resultado del test de Kolmogorov-Shapiro. Además, el test de Kolmogorov-Smirnov es poco potente y pierde sensibilidad. Para que aumente su potencia se puede usar la correción de Lillefors.
+
+## Ejercicio 2
+
+### a)
+
+```{r}
+#| echo: false
+ggplot(Grupo1, aes(x =`Presión sistólica después`, y = `Colesterol total`)) + geom_point(colour=6, size= 3) + ggtitle("Diagrama de dispersión")
+#| echo: false
+
+corr <- cor(Grupo1$`Presión sistólica después`, Grupo1$`Colesterol total`)
+
+cov1 <- cov(Grupo1$`Presión sistólica después`, Grupo1$`Colesterol total`)
+
+knitr::kable(
+  data.frame("Coef Correlación" = c(corr)
+  ),
+  format = "markdown",
+  caption = ""
+)
+
+
+```
+
+Como podemos ver en el Diagrama de dispersión, observamos una correlación alta positiva ya que los puntos de la gráfica tienen una tendencia hacia la derecha. Además, al interpretar el coeficiente de correlación (0.767) podemos afirmar que la presión sistólica despúes de la toma del medicamento y el colesterol total tienen una correlación positiva y fuerte.
+
+### b)
+
+Modelo a estimar:
+
+$$
+PRESIONDESP= b_1 * colesterol+ b_0 + error
+$$ Estimamos el modelo que explica la Presión sistólica después en función del colesterol total.
+
+```{r}
+#| echo: false
+modelo <- lm(`Presión sistólica después`~ `Colesterol total`, data = Grupo1)
+summary(modelo)
+```
+
+$$
+PRESIONDESP= 0.61* colesterol+ 6.17
+$$
+
+$$
+PRESIONDESP= 0.61* 105+ 6.17 = 70.22
+$$ La estimación para un paciente joven cuyo colesterol total es 105 mg/Dl de la Presión sistólica despues de ingerir el medicamento es de 70.22.
+
+### c)
+
+El coeficiente de determinación R cuadrado, indica el porcentaje de variación de la variable dependiente Presión sistólica despúes que se explica por la relación lineal con la variable independiente Colesterol total. Como podemos observar en la tabla anterior, hay dos tipos de R cuadrado, el R cuadrado y el ajustado. Si interpretamos el R cuadrado sin ajustar nos da que la variable colesterol total explica un 58.85% la presión sistólica después. No obstante, el r cuadrado sin ajustar tiende a sobreestimar el modelo si hay predictores irrelevantes. Por ello, usaremos el R cuadrado ajustado que elimina los predictores irrelevantes siendo una bondad de ajuste más precisa, donde la variable colesterol total explica un 57.78% la presión sistólica después.
+
+### d)
+
+El valor del coeficiente de Colesterol Total en el modelo de regresión lineal es de 0.61, este valor indica que por cada aumento adicional del colesterol total la Presión sistólica después aumentaría 0.61 mmHg. Por tanto, si se aumenta el colesterol de un paciente en 5mg/DL, la presión sistólica aumentaría en proporción a esta ecuación: $$
+PRESIONDESP = 0.61*5 + B_0
+$$ Es decir, la Presión sistólica después aumentaría un 3.05 mmHg.
+
+## Ejercicio 3
+
+### a)
+
+En este apartado, el método que utilizaremos en la inferencia estadística es el intervalo de confianza para la media de una población con distribución normal.\
+Primero, obtenemos el intervalo de confianza al 95% y al 99% para el nivel medio de presión sistólica antes de la toma del medicamento.
+
+#### Intervalo de confianza al 95%
+
+```{r}
+#| echo: false
+t.test(Grupo2$`Presion sistólica antes`, mu = 130, conf.level = 0.95)
+```
+
+#### Intervalo de confianza al 99%
+
+```{r}
+#| echo: false
+t.test(Grupo2$`Presion sistólica antes`, mu = 130, conf.level = 0.99)
+```
+
+Tras los resultados, podemos observar que para el intervalo de confianza al 95% es (123.8955,131.0712). Es decir, la media se encuentra entre 123.8955 y 131.0712 al 95%. Por tanto, la media propuesta podría ser válida ya que 130 mm de Hg entra dentro del intervalo. De hecho, al realizar el contraste de hipótesis observamos que el p-valor (0.1657) es mayor del nivel se significación (0.05). Por tanto, aceptaríamos la hipótesis nula donde la media de la presión sistólica antes de la toma del medicamento para la población adulta puede tomar valor de 130 mm de Hg.
+
+En cuanto, al intervalo de confianza al 99% es (122.7107,132.2560), la media se encuentra dentro de este intervalo. Por ende, la media propuesta de 130 mm de Hg está dentro del intervalo. Hecho que se respalda con el contraste de hipótesis ya que el P-valor (0.1657) es mayor que el nivel de significación (0.01), no rechazando la hipótesis nula.
+
+### b)
+
+Para poder observar si la presión sistólica media es distinta dependiendo de la edad, realizamos un intervalo de confianza de diferencia de medias al 95%.
+
+#### Intervalo de confianza diferencia de medias
+
+```{r}
+#| echo: false
+t.test(Grupo1$`Presión sistólica después`, Grupo2$`Presión sistólica después`, alternative = "two.sided", var.equal = FALSE,  conf.level = 0.95)
+```
+
+El intervalo de diferencia de medias en la presión sistólica después entre adultos y jóvenes es (-8.885,1.7852). Si las medias fueran iguales, la diferencia sería cero. Por tanto, como 0 está dentro del intervalo podemos argumentar que no hay diferencia significativa entre las medias de los adultos y jóvenes. En otras palabras, la edad no influye significativamente en la presión después de la ingesta del medicamento.
+
+### c)
+
+Primero calcularemos la proporción de la población con una presión sistólica inicial igual o superior a 130 mm de Hg (prehipertensión)
+
+```{r}
+
+prop_130 <- mean(HIPERTENSION$`Presion sistólica antes` >= 130)
+prop_130
+
+```
+
+El 35% es la proporción de la muestra que tiene una presión sistólica inicial igual o superior a 130 mm de Hg.
+
+
+#### Intervalo de confianza al 99%, proporción de 0.35.
+```{r}
+#| echo: false
+prop.test(x = 35, n = 100, conf.level = 0.99)
+```
+
+El intervalo de confianza al 99% de la proporción de la población con hipertensión es de (0.2357, 0.4837). Es decir, se estima al 99% que la proporción de población con hipertensión está entre el 23.57% y el 48.37%. Por tanto, el 35% de la proporción de población está dentro del intervalo de confianza y podría ser válido.
+
+#### Contraste de hipótesis e intervalo de confianza al 95% para una proporción del 30%
+
+```{r}
+#| echo: false
+prop.test(x = 35, n = 100, conf.level = 0.95, p=0.30)
+```
+
+Al realizar el contraste de hipótesis si la proporción de población con hipertensión fuera del 30%, la aceptaríamos ya que el P-valor ,0.3261, es mayor que 0.05. Es decir, sería posible que la proporción de población con hipertensión sea un 30%.
+
+En este caso, el intervalo de confianza al 95% de la proporción de la población con hipertensión es (0.2591, 0.4525). Por ende, la proporción de población con presión sistólica superior o igual a 130mm de Hg está entre el 25.91% y el 45.25%. Donde el 30% de proporción que propone el enunciado, está dentro del intervalo.
+
+### d)
+
+Para poder determinar la eficacia del medicamento en la población adulta después de la toma del medicamento. Realizaremos el contraste de igualdad de medias para datos emparejados. Es decir, observaciones pareadas donde se extraen dos muestras no independientes con el mismo tamaño de muestra de dos poblaciones normales. En este caso, las muestras se extraen de la misma población adulta (Grupo 2) de las diferentes presiones sistólicas.
+
+Por tanto, realizamos el contraste y el intervalo sobre la diferencia de medias.
+
+$$
+d = \mu _1 - \mu _2
+$$
+
+#### Contraste e intervalo de diferencia de medias al 95% de ambas presiones sistólicas
+
+```{r}
+#| echo: false
+t.test(x = Grupo2$`Presion sistólica antes`, y = Grupo2$`Presión sistólica después`, alternative = "two.sided",
+       mu = 0, paired = TRUE, conf.level = 0.95)
+```
+
+Tras los resultados del contraste de hipótesis, observamos que el P-valor es 0.0003631 y al ser menor que el nivel de significación de 0.05, rechazaríamos la hipótesis nula. Siendo la hipótesis nula:
+
+$$
+ \mu _1 = \mu _2
+$$
+
+Donde no hay diferencia entre las medias de las diferentes presiones. Es decir, existe una diferencia significativa entre la presión sistólica tomada antes del medicamento y la presión sistólica tomada después del medicamento. El intervalo del confianza al 95% de la diferencia media entre ambas presiones es de (1.900, 6.166). Por ello, podemos deducir por el intervalo que la diferencia media de ambas presiones es positiva. En otras palabras, en cuanto a las medias, la presión sistólica después del medicamento es mayor que la presión sistólica antes del medicamento. En consecuencia, el medicamento no es eficaz ya que no se ha reducido la presión sistólica después de la toma del medicamento.
